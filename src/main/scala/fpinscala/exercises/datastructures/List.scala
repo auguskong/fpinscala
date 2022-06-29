@@ -78,18 +78,22 @@ object List: // `List` companion object. Contains functions for creating and wor
   def length[A](l: List[A]): Int =
     l match
       case Nil => 0
-      case Cons(_, t) => length(t) + 1 
+      case Cons(_, t) => length(t) + 1
     // foldRight(l, 0, (_,acc) => acc + 1)
 
-  def foldLeft[A,B](l: List[A], acc: B, f: (B, A) => B): B = ???
+  @annotation.tailrec
+  def foldLeft[A,B](l: List[A], acc: B, f: (B, A) => B): B =
+    l match
+      case Nil => acc
+      case Cons(h, t) => foldLeft(t, f(acc, h), f)
 
-  def sumViaFoldLeft(ns: List[Int]) = ???
+  def sumViaFoldLeft(ns: List[Int]) = foldLeft(ns, 0, _ + _)
 
-  def productViaFoldLeft(ns: List[Double]) = ???
+  def productViaFoldLeft(ns: List[Double]) = foldLeft(ns, 1.0, _ * _)
 
-  def lengthViaFoldLeft[A](l: List[A]): Int = ???
+  def lengthViaFoldLeft[A](l: List[A]): Int = foldLeft(l, 0, (acc, a: A) => acc + 1)
 
-  def reverse[A](l: List[A]): List[A] = ???
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A](), (acc, a: A) => Cons(a, acc))
 
   def appendViaFoldRight[A](l: List[A], r: List[A]): List[A] = ???
 
@@ -99,9 +103,11 @@ object List: // `List` companion object. Contains functions for creating and wor
 
   def doubleToString(l: List[Double]): List[String] = ???
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+  def map[A,B](l: List[A])(f: A => B): List[B] = foldRight(l, Nil: List[B], (h,t) => Cons(f(h),t))
+  //    foldLeft(l, List[B](), (acc, a:A) => Cons(acc, f(a)))
 
-  def filter[A](as: List[A])(f: A => Boolean): List[A] = ???
+  // Nil 是List 为空时的返回结果
+  def filter[A](as: List[A])(f: A => Boolean): List[A] = foldRight(as: List[A], Nil: List[A], (h, t) => if f(h) then Cons(h, t) else t)
 
   def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = ???
 
